@@ -1,0 +1,36 @@
+Password policy:
+passwordlen >= 14
+2 uppercase, 2 lowercase, 2 nums, 2 "special chars" //Basic validation function
+No components of name in password //this and next line passed to primary validation function
+No EIN in password
+
+Bits set for each basic validation rule:
+0001: 2 uppercase
+0010: 2 lowercase
+0100: 2 numbers
+1000: 2 special chars
+Various combinations indicate which conditions are met and which aren't.
+
+Acct. creation rules:
+Username == employee ID number.
+Employee ID number is just randomly assigned num, 5 digits long with first letter of last name leading
+Example: For employee Creg Fregstein, potential EIN is F98765
+When creating account through interface, following info will be inputted:
+First and Last name
+EIN (We can perhaps switch this to be dynamically generated on account creation
+Password, typed twice
+
+Password changing:
+Password must be changed after 60 days
+Password history stored, cannot be changed to 5 most recent passwords
+Cannot change password more than once a day
+
+Account lockout policy:
+If (passwordIncorrectCounter == 3 && passwordIncorrectTimespan == 1 (hour))
+Account is locked for one hour.
+Logins will not be allowed until the hour expires.
+
+If password is forgotten:
+In physical policy, help desk contact is required.
+Difficult to implement, will leave as an unused feature for now.
+
