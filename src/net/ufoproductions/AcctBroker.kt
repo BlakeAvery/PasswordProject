@@ -18,8 +18,14 @@ import kotlin.random.Random
 class AcctBroker {
     val accounts = File("C:\\Users\\Blake\\IdeaProjects\\PasswordProject\\src\\accounts")
     val checker = Checker()
-    fun login(EIN: String, password: String): Boolean {
-        var ret = false
+    fun login(EIN: String, password: String): Byte {
+        /**
+         * Return for this function is as follows:
+         * 0 - Log in successful.
+         * 1 - Log in failure.
+         * 2 - Password requires changing. Signals to frontend that new password is required.
+         */
+        var ret: Byte = 0
         //First, search for account existence
         val acctList = accounts.readLines()
         for(i in acctList.indices) {
@@ -34,8 +40,8 @@ class AcctBroker {
                     //Check if account lockout is expired
                     if((Date().time - eee[5].toLong()) < 3600) {
                         //Account is still locked out.
-                        ret = false
-                        return false
+                        ret = 1
+                        return ret
                     } //otherwise keep going
                 }
                 //Compare hashed passwords
@@ -47,11 +53,12 @@ class AcctBroker {
                             data[i].lastLoginAttempt = Date().time
                             data[i].lastSuccessfulLogin = Date().time
                             data[i].isAccountLocked = false
+                            data[i].passwordIncorrectCounter = 0
                         }
                     }
                     writeListofAccts(data)
-                    ret = true
-                    return true
+                    ret = 0
+                    return ret
                 } else {
                     //password is wrong. Log login attempt, increase incorrect login counter, and then return false.
                     val data = getListofAccts(accounts.readLines())
@@ -59,26 +66,29 @@ class AcctBroker {
                         if(data[i].EIN == EIN) {
                             if((Date().time - data[i].lastLoginAttempt) < 3600) {
                                 data[i].passwordIncorrectCounter++
+                                if(data[i].passwordIncorrectCounter >= 3) {
+                                    data[i].isAccountLocked = true
+                                }
                             }
                             data[i].lastLoginAttempt = Date().time
                         }
                     }
                     writeListofAccts(data)
-                    ret = false
-                    return false
+                    ret = 1
+                    return ret
                 }
             }
         }
         return ret
     }
 
-    fun createAcct(firstName: String, lastName: String, password: String): Boolean {
+    fun createAcct(firstName: String, lastName: String, password: String): Boolean { //TODO: Return user that represents if account was created. If 0000000, then account failed
         //first generate EIN.
         val EIN: StringBuilder = StringBuilder()
         EIN.append(lastName[0])
         var num = Random.nextInt(0, 99999)
         if(num < 10000) { //Too short for an EIN?
-            val padded = num.toString().padStart(5)
+            val padded = num.toString().padStart(5, '0')
             EIN.append(padded)
         } else {
             EIN.append(num)
@@ -136,12 +146,15 @@ class AcctBroker {
         return ret
     }
     private fun writeListofAccts(list: ArrayList<User>) {
-        accounts.writeText("${list[0].EIN},${list[0].firstName},${list[0].lastName},${list[0].password},${list[0].passwordIncorrectCounter}")
+        accounts.writeText("${list[0].EIN},${list[0].firstName},${list[0].lastName},${list[0].password},${list[0].passwordIncorrectCounter},${list[0].lastLoginAttempt},${list[0].lastSuccessfulLogin},${if(!list[0].isAccountLocked) 0 else 1},${list[0].lastPasswordChange}")
+        for(i in 1 until list.size) {
+            accounts.appendText("${list[i].EIN},${list[i].firstName},${list[i].lastName},${list[i].password},${list[i].passwordIncorrectCounter},${list[i].lastLoginAttempt},${list[i].lastSuccessfulLogin},${if(!list[i].isAccountLocked) 0 else 1},${list[i].lastPasswordChange}")
+        }
     }
     private fun byteArrayToString(array: ByteArray): String { //here to deal with the byte arrays passed from createAcct's hash function
         val ret = StringBuilder()
         for(i in array.indices) {
-            ret.append(String.format("%02X", array[i]))
+            ret.append(String.format("%02x", array[i]))
         }
         return ret.toString()
     }

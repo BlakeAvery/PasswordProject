@@ -12,10 +12,16 @@ fun main(args: Array<String>) {
                 val username = readLine() ?: ""
                 println("What is your password?")
                 val password = readLine() ?: ""
-                if(acctBroker.login(username, password)) {
-                    println("Login successful.")
-                } else {
-                    println("Login failed for some reason.")
+                when(acctBroker.login(username, password)) {
+                    0.toByte() -> {
+                        println("Login successful.")
+                    }
+                    1.toByte() -> {
+                        println("Login failed. Check password or if account is in lockout.")
+                    }
+                    2.toByte() -> {
+
+                    }
                 }
             }
             '1' -> {

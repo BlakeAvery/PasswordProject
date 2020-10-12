@@ -38,9 +38,17 @@ class Checker {
                 in 'A'..'Z' -> upperCounter++
                 in 'a'..'z' -> lowerCounter++
                 in '0'..'9' -> numCounter++
+                in ' '..'/' -> specialCharCounter++
+                in ':'..'@' -> specialCharCounter++
+                in '['..'`' -> specialCharCounter++
+                in '{'..'~' -> specialCharCounter++
                 else -> specialCharCounter++
             }
         }
+        println("UpperCounter: $upperCounter")
+        println("LowerCounter: $lowerCounter")
+        println("NumCounter: $numCounter")
+        println("SpecialCharCounter: $specialCharCounter")
         if(upperCounter > 1) ret = ret xor 0b00000001
         if(lowerCounter > 1) ret = ret xor 0b00000010
         if(numCounter > 1) ret = ret xor 0b00000100
