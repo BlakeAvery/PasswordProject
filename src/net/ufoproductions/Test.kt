@@ -20,7 +20,7 @@ fun main(args: Array<String>) {
                         println("Login failed. Check password or if account is in lockout.")
                     }
                     2.toByte() -> {
-
+                        println("Your password is outdated. ")
                     }
                 }
             }

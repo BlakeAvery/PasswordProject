@@ -16,9 +16,17 @@ import kotlin.random.Random
  */
 
 class AcctBroker {
-    val accounts = File("C:\\Users\\Blake\\IdeaProjects\\PasswordProject\\src\\accounts")
-    val checker = Checker()
+    val accounts: File
+    val checker: Checker
+    init {
+        accounts = File("C:\\Users\\Blake\\IdeaProjects\\PasswordProject\\src\\accounts")
+        checker = Checker()
+        if(!accounts.exists()) {
+            accounts.createNewFile()
+        }
+    }
     fun login(EIN: String, password: String): Byte {
+        println("We are now in login function! Welcome! Version 1")
         /**
          * Return for this function is as follows:
          * 0 - Log in successful.
@@ -27,25 +35,24 @@ class AcctBroker {
          */
         var ret: Byte = 0
         //First, search for account existence
-        val acctList = accounts.readLines()
+        val acctList = getListofAccts(accounts.readLines())
         for(i in acctList.indices) {
-            if(acctList[i].contains(EIN)) {
+            if(acctList[i].EIN == EIN) {
                 //Move to next stage, pogchampion!
-                val eee = csvParse(acctList[i])
-                println("EIN: ${eee[0]}")
-                println("First name: ${eee[1]}")
-                println("Last name: ${eee[2]}")
+                println("EIN: ${acctList[i].EIN}")
+                println("First name: ${acctList[i].firstName}")
+                println("Last name: ${acctList[i].lastName}")
                 //check for account lock
-                if(eee[7].toInt() != 0) {
+                if(acctList[i].isAccountLocked) {
                     //Check if account lockout is expired
-                    if((Date().time - eee[5].toLong()) < 3600) {
+                    if((Date().time - acctList[i].lastLoginAttempt) < 3600) {
                         //Account is still locked out.
                         ret = 1
                         return ret
                     } //otherwise keep going
                 }
                 //Compare hashed passwords
-                if(eee[3] == byteArrayToString(MessageDigest.getInstance("SHA-256").digest(password.toByteArray()))) {
+                if(acctList[i].password == byteArrayToString(MessageDigest.getInstance("SHA-256").digest(password.toByteArray()))) {
                     //modify specific line of accounts with new login time and login attemot, set account lockout to zero
                     val data = getListofAccts(accounts.readLines())
                     for(i in data.indices) {
@@ -146,9 +153,12 @@ class AcctBroker {
         return ret
     }
     private fun writeListofAccts(list: ArrayList<User>) {
-        accounts.writeText("${list[0].EIN},${list[0].firstName},${list[0].lastName},${list[0].password},${list[0].passwordIncorrectCounter},${list[0].lastLoginAttempt},${list[0].lastSuccessfulLogin},${if(!list[0].isAccountLocked) 0 else 1},${list[0].lastPasswordChange}")
+        println("Writing accounts file...")
+        println("${list[0].EIN},${list[0].firstName},${list[0].lastName},${list[0].password},${list[0].passwordIncorrectCounter},${list[0].lastLoginAttempt},${list[0].lastSuccessfulLogin},${if(!list[0].isAccountLocked) 0 else 1},${list[0].lastPasswordChange}")
+        accounts.writeText("${list[0].EIN},${list[0].firstName},${list[0].lastName},${list[0].password},${list[0].passwordIncorrectCounter},${list[0].lastLoginAttempt},${list[0].lastSuccessfulLogin},${if(!list[0].isAccountLocked) 0 else 1},${list[0].lastPasswordChange}\n")
         for(i in 1 until list.size) {
-            accounts.appendText("${list[i].EIN},${list[i].firstName},${list[i].lastName},${list[i].password},${list[i].passwordIncorrectCounter},${list[i].lastLoginAttempt},${list[i].lastSuccessfulLogin},${if(!list[i].isAccountLocked) 0 else 1},${list[i].lastPasswordChange}")
+            println("${list[i].EIN},${list[i].firstName},${list[i].lastName},${list[i].password},${list[i].passwordIncorrectCounter},${list[i].lastLoginAttempt},${list[i].lastSuccessfulLogin},${if(!list[i].isAccountLocked) 0 else 1},${list[i].lastPasswordChange}")
+            accounts.appendText("${list[i].EIN},${list[i].firstName},${list[i].lastName},${list[i].password},${list[i].passwordIncorrectCounter},${list[i].lastLoginAttempt},${list[i].lastSuccessfulLogin},${if(!list[i].isAccountLocked) 0 else 1},${list[i].lastPasswordChange}\n")
         }
     }
     private fun byteArrayToString(array: ByteArray): String { //here to deal with the byte arrays passed from createAcct's hash function
