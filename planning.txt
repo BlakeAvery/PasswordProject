@@ -34,3 +34,7 @@ If password is forgotten:
 In physical policy, help desk contact is required.
 Difficult to implement, will leave as an unused feature for now.
 
+Accounts file text format:
+Similar to format in Tenner's employees.txt
+Lines starting with # are ignored by the parser, otherwise all records are to follow this format:
+EIN,firstName,lastName,hashedPassword,passwordIncorrectCounter,lastLoginAttempt,lastSuccessfulLogin,accountLockedOut
