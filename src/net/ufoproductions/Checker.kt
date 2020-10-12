@@ -33,8 +33,8 @@ class Checker {
         var lowerCounter: Int = 0
         var numCounter: Int = 0
         var specialCharCounter: Int = 0
-        for(i in 0 until password.length - 1) {
-            when(password[i]) {
+        for(element in password) {
+            when(element) {
                 in 'A'..'Z' -> upperCounter++
                 in 'a'..'z' -> lowerCounter++
                 in '0'..'9' -> numCounter++

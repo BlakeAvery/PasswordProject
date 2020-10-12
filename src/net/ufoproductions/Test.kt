@@ -42,6 +42,33 @@ fun main(args: Array<String>) {
                     }
                 }
             }
+            '2' -> {
+
+                for(i in ' '..'~') {
+                    print(i)
+                }
+                println()
+            }
+            '3' -> {
+                val EIN = "P44216"
+                val firstName = "Jeff"
+                val lastName = "Pongasman"
+                println("Enter passsword. Your name is $firstName $lastName.")
+                val password = readLine() ?: "Pingas21"
+                val chegger = Checker().validatePassword(firstName, lastName, EIN, password)
+                if(chegger[0] != CheckerReturnValues.PASSWORD_OK) {
+                    for(x in chegger.indices) {
+                        when(chegger[x]) {
+                            CheckerReturnValues.PASSWORD_TOO_SHORT -> println("Password too short.")
+                            CheckerReturnValues.PASSWORD_ALPHANUMERIC_FAIL -> println("Password does not meet complexity reqs.")
+                            CheckerReturnValues.PASSWORD_NAME_IN_PASSWORD -> println("Name present in password.")
+                            CheckerReturnValues.PASSWORD_EIN_IN_PASSWORD -> println("EIN present in password.")
+                        }
+                    }
+                } else {
+                    println("Password is allowed.")
+                }
+            }
         }
     }
 }
