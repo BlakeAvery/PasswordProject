@@ -20,7 +20,7 @@ fun main(args: Array<String>) {
                         println("Login failed. Check username or password for validity.")
                     }
                     2.toByte() -> {
-                        println("Your password is outdated. You are required to change your password every 90 days in order to log in.")
+                        println("Your password is outdated. You are required to change your password every 60 days in order to log in.")
                         println("Provide new password: ")
                         val newPass = readLine() ?: ""
                         println("Enter new password again: ")

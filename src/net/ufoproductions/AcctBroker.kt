@@ -139,19 +139,34 @@ class AcctBroker {
 
     fun changePassword(EIN: String, curPassword: String, newPassword: String): Boolean {
         //First confirm that curPassword matches the password on file for that specific EIN
+        var ret = false
         val acctList = getListofAccts(accounts.readLines())
         for(i in acctList.indices) {
             if(acctList[i].EIN == EIN) {
                 if(acctList[i].password == byteArrayToString((MessageDigest.getInstance("SHA-256").digest(curPassword.toByteArray())))) {
                     //IF EIN is found AND IF hashed password matches hashed inputted password
-
+                    val pingas = checker.validatePassword(acctList[i].firstName, acctList[i].lastName, acctList[i].EIN, newPassword)
+                    if(pingas[0] != CheckerReturnValues.PASSWORD_OK) {
+                        for(x in pingas.indices) {
+                            when(pingas[x]) {
+                                CheckerReturnValues.PASSWORD_TOO_SHORT -> println("Password too short.")
+                                CheckerReturnValues.PASSWORD_ALPHANUMERIC_FAIL -> println("Password does not meet complexity reqs.")
+                                CheckerReturnValues.PASSWORD_NAME_IN_PASSWORD -> println("Name present in password.")
+                                CheckerReturnValues.PASSWORD_EIN_IN_PASSWORD -> println("EIN present in password.")
+                            }
+                        }
+                        return ret
+                    } else {
+                        println("PASSWORD OK")
+                    }
                     acctList[i].password = byteArrayToString((MessageDigest.getInstance("SHA-256").digest(newPassword.toByteArray())))
                     acctList[i].lastPasswordChange = Date().time
-                    return true
+                    ret = true
                 }
             }
         }
-        return false
+        writeListofAccts(acctList)
+        return ret
     }
 
     private fun csvParse(line: String): Array<String> {
