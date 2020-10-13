@@ -17,10 +17,27 @@ fun main(args: Array<String>) {
                         println("Login successful.")
                     }
                     1.toByte() -> {
-                        println("Login failed. Check password or if account is in lockout.")
+                        println("Login failed. Check username or password for validity.")
                     }
                     2.toByte() -> {
-                        println("Your password is outdated. ")
+                        println("Your password is outdated. You are required to change your password every 90 days in order to log in.")
+                        println("Provide new password: ")
+                        val newPass = readLine() ?: ""
+                        println("Enter new password again: ")
+                        val newPassRepeat = readLine() ?: ""
+                        if(newPass == newPassRepeat) {
+                            if(acctBroker.changePassword(username, password, newPass)) {
+                                println("Password change successful. You may now attempt to login again.")
+                            } else {
+                                println("Password change failed. Either your ")
+                            }
+                        }
+                    }
+                    3.toByte() -> {
+                        println("Your account is in lockout. Refer to documentation for what to do next.")
+                    }
+                    else -> {
+                        println("Something went")
                     }
                 }
             }
@@ -43,7 +60,6 @@ fun main(args: Array<String>) {
                 }
             }
             '2' -> {
-
                 for(i in ' '..'~') {
                     print(i)
                 }
@@ -53,7 +69,7 @@ fun main(args: Array<String>) {
                 val EIN = "P44216"
                 val firstName = "Jeff"
                 val lastName = "Pongasman"
-                println("Enter passsword. Your name is $firstName $lastName.")
+                println("Enter passsword. Your name is $firstName $lastName, and your EIN is $EIN.")
                 val password = readLine() ?: "Pingas21"
                 val chegger = Checker().validatePassword(firstName, lastName, EIN, password)
                 if(chegger[0] != CheckerReturnValues.PASSWORD_OK) {
