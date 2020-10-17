@@ -38,3 +38,9 @@ Accounts file text format:
 Similar to format in Tenner's employees.txt
 Lines starting with # are ignored by the parser, otherwise all records are to follow this format:
 EIN,firstName,lastName,hashedPassword,passwordIncorrectCounter,lastLoginAttempt,lastSuccessfulLogin,accountLockedOut,lastPasswordChange
+
+Passwd file:
+This file is here to store password history. It also gets an associated object, UserPass.
+This file shares the same format as accounts, with values being comment separated.
+UserPass object has two attributes, EIN and PassHistory, an array that contains the 5 most recent passwords.
+EIN,mostRecentPassword,2ndPass,3rdPass,4thPass,5thPass

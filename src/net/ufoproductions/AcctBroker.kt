@@ -16,13 +16,16 @@ import kotlin.random.Random
  */
 
 class AcctBroker {
-    val accounts: File
-    val checker: Checker
+    val accounts = File("accounts")
+    val passwd = File("passwd")
+    val checker = Checker()
+
     init {
-        accounts = File("C:\\Users\\Blake\\IdeaProjects\\PasswordProject\\src\\accounts")
-        checker = Checker()
         if(!accounts.exists()) {
             accounts.createNewFile()
+        }
+        if(!passwd.exists()) {
+            passwd.createNewFile()
         }
     }
     fun login(EIN: String, password: String): Byte {
@@ -85,9 +88,13 @@ class AcctBroker {
                     ret = 1
                     return ret
                 }
+            } else { //EIN was not found.
+                println("EIN not located. User does not exist.")
+                ret = 1
+                return ret
             }
         }
-        return ret
+        return ret //This has to be here otherwise it breaks.
     }
 
     fun createAcct(firstName: String, lastName: String, password: String): Boolean { //TODO: Return user that represents if account was created. If 0000000, then account failed
@@ -129,12 +136,11 @@ class AcctBroker {
         //now if we make it through this loop it means that the account wasn't found. Make it.
         val hashedPasswordBytes = MessageDigest.getInstance("SHA-256").digest(password.toByteArray()) ?: throw IllegalArgumentException()
         val hashedPasswordHash = byteArrayToString(hashedPasswordBytes)
-        accounts.appendText("${EIN.toString()},$firstName,$lastName,$hashedPasswordHash,0,${Date().time},${Date().time},0,${Date().time}\n")
-        return true
-    }
+        accounts.appendText("${EIN},$firstName,$lastName,$hashedPasswordHash,0,${Date().time},${Date().time},0,${Date().time}\n")
+        //For password history purposes
+        val userPass = UserPass(EIN.toString(), Array(5) {hashedPasswordHash})
 
-    fun isAcctOnLockout(EIN: String): Boolean {
-        return false //TODO: Implement
+        return true
     }
 
     fun changePassword(EIN: String, curPassword: String, newPassword: String): Boolean {
@@ -169,11 +175,6 @@ class AcctBroker {
         return ret
     }
 
-    private fun csvParse(line: String): Array<String> {
-        val lines = line.split(",")
-        return lines.toTypedArray()
-    }
-
     private fun getListofAccts(list: List<String>): ArrayList<User> {
         val ret = ArrayList<User>()
         for(i in list.indices) {
@@ -184,11 +185,31 @@ class AcctBroker {
     }
     private fun writeListofAccts(list: ArrayList<User>) {
         println("Writing accounts file...")
-        println("${list[0].EIN},${list[0].firstName},${list[0].lastName},${list[0].password},${list[0].passwordIncorrectCounter},${list[0].lastLoginAttempt},${list[0].lastSuccessfulLogin},${if(!list[0].isAccountLocked) 0 else 1},${list[0].lastPasswordChange}")
+        //println("${list[0].EIN},${list[0].firstName},${list[0].lastName},${list[0].password},${list[0].passwordIncorrectCounter},${list[0].lastLoginAttempt},${list[0].lastSuccessfulLogin},${if(!list[0].isAccountLocked) 0 else 1},${list[0].lastPasswordChange}")
         accounts.writeText("${list[0].EIN},${list[0].firstName},${list[0].lastName},${list[0].password},${list[0].passwordIncorrectCounter},${list[0].lastLoginAttempt},${list[0].lastSuccessfulLogin},${if(list[0].isAccountLocked) 1 else 0},${list[0].lastPasswordChange}\n")
-        for(i in 1 until list.size) {
-            println("${list[i].EIN},${list[i].firstName},${list[i].lastName},${list[i].password},${list[i].passwordIncorrectCounter},${list[i].lastLoginAttempt},${list[i].lastSuccessfulLogin},${if(!list[i].isAccountLocked) 0 else 1},${list[i].lastPasswordChange}")
-            accounts.appendText("${list[i].EIN},${list[i].firstName},${list[i].lastName},${list[i].password},${list[i].passwordIncorrectCounter},${list[i].lastLoginAttempt},${list[i].lastSuccessfulLogin},${if(list[i].isAccountLocked) 1 else 0},${list[i].lastPasswordChange}\n")
+        if(list.size > 1) {
+            for(i in 1 until list.size) {
+                //println("${list[i].EIN},${list[i].firstName},${list[i].lastName},${list[i].password},${list[i].passwordIncorrectCounter},${list[i].lastLoginAttempt},${list[i].lastSuccessfulLogin},${if(!list[i].isAccountLocked) 0 else 1},${list[i].lastPasswordChange}")
+                accounts.appendText("${list[i].EIN},${list[i].firstName},${list[i].lastName},${list[i].password},${list[i].passwordIncorrectCounter},${list[i].lastLoginAttempt},${list[i].lastSuccessfulLogin},${if(list[i].isAccountLocked) 1 else 0},${list[i].lastPasswordChange}\n")
+            }
+        }
+    }
+    private fun getListOfPasswds(list: List<String>): ArrayList<UserPass> {
+        val ret = ArrayList<UserPass>()
+        for(i in list.indices) {
+            val yeah = list[i].split(",")
+            val array = Array(5) {yeah[1]; yeah[2]; yeah[3]; yeah[4]; yeah[5]}
+            ret.add(UserPass(yeah[0], array))
+        }
+        return ret
+    }
+    private fun writeListOfPasswds(list: ArrayList<UserPass>) {
+        println("Writing passwd file...")
+        passwd.writeText("${list[0].EIN},${list[0].passHistory[0]},${list[0].passHistory[1]},${list[0].passHistory[2]},${list[0].passHistory[3]},${list[0].passHistory[4]}\n")
+        if(list.size > 1) {
+            for(i in 1 until list.size) {
+                passwd.appendText("${list[0].EIN},${list[0].passHistory[0]},${list[0].passHistory[1]},${list[0].passHistory[2]},${list[0].passHistory[3]},${list[0].passHistory[4]}\n")
+            }
         }
     }
     private fun byteArrayToString(array: ByteArray): String { //here to deal with the byte arrays passed from createAcct's hash function
