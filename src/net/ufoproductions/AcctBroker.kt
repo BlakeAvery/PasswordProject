@@ -136,10 +136,10 @@ class AcctBroker {
         //now if we make it through this loop it means that the account wasn't found. Make it.
         val hashedPasswordBytes = MessageDigest.getInstance("SHA-256").digest(password.toByteArray()) ?: throw IllegalArgumentException()
         val hashedPasswordHash = byteArrayToString(hashedPasswordBytes)
-        accounts.appendText("${EIN},$firstName,$lastName,$hashedPasswordHash,0,${Date().time},${Date().time},0,${Date().time}\n")
+        accounts.appendText("${EIN},$firstName,$lastName,$hashedPasswordHash,0,${Date().time},${Date().time},0,${Date().time}\n)
         //For password history purposes
-        val userPass = UserPass(EIN.toString(), Array(5) {hashedPasswordHash})
-
+        val userPass = UserPass(EIN.toString(), Array(5) {hashedPasswordHash; ""; ""; ""; ""})
+        println(userPass.EIN)
         return true
     }
 

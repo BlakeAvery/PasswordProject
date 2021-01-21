@@ -21,15 +21,22 @@ fun main(args: Array<String>) {
                     }
                     2.toByte() -> {
                         println("Your password is outdated. You are required to change your password every 60 days in order to log in.")
-                        println("Provide new password: ")
-                        val newPass = readLine() ?: ""
-                        println("Enter new password again: ")
-                        val newPassRepeat = readLine() ?: ""
+                        var newPass: String
+                        var newPassRepeat: String
+                        while(true) {
+                            println("Provide new password: ")
+                            newPass = readLine() ?: ""
+                            println("Enter new password again: ")
+                            newPassRepeat = readLine() ?: ""
+                            if(newPass != password) {
+                                break
+                            }
+                        }
                         if(newPass == newPassRepeat) {
                             if(acctBroker.changePassword(username, password, newPass)) {
                                 println("Password change successful. You may now attempt to login again.")
                             } else {
-                                println("Password change failed. Either your ")
+                                println("Password change failed. Requirements not met.")
                             }
                         }
                     }
@@ -84,6 +91,18 @@ fun main(args: Array<String>) {
                 } else {
                     println("Password is allowed.")
                 }
+            }
+            '4' -> {
+                var num1 = 0b110101010101
+                var a = 0b010101010101
+                var b = 0b010101010111
+                var c = 0b010101010111
+                var d = 0b000111111000
+                println("1a is ${Integer.toBinaryString((num1 xor a))}")
+                println("1b is ${Integer.toBinaryString((num1 xor b))}")
+                println("1c is ${Integer.toBinaryString((num1 xor c))}")
+                println("1d is ${Integer.toBinaryString((num1 xor d))}")
+                
             }
         }
     }

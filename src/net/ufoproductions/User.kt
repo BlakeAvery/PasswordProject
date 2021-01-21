@@ -8,5 +8,6 @@ data class User(val EIN: String,
                 var lastLoginAttempt: Long,
                 var lastSuccessfulLogin: Long,
                 var isAccountLocked: Boolean,
-                var lastPasswordChange: Long) {
+                var lastPasswordChange: Long,
+                val passwordHistory: Array<String>) {
 }
